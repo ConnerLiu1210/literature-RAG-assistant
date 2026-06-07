@@ -1,0 +1,86 @@
+cat > .gitignore <<'EOF'
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Chroma / vector database files
+chroma_db/
+chroma/
+.vector_store/
+*.sqlite3
+*.db
+
+# Uploaded papers / local data
+data/
+papers/
+uploads/
+
+# But keep folder structure if needed
+!data/.gitkeep
+!papers/.gitkeep
+!uploads/.gitkeep
+
+# Model/cache files
+.cache/
+huggingface/
+.huggingface/
+models/
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# Streamlit
+.streamlit/
+!.streamlit/config.toml
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Test output
+*.out
+*.tmp
+
+# Build / package files
+build/
+dist/
+*.egg-info/
+
+# Local config
+config.local.*
+
+# OS generated files
+Thumbs.db
+EOF
