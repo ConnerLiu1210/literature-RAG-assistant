@@ -10,6 +10,7 @@ from src.vector_store import build_vector_store, search
 from src.prompt_builder import build_rag_prompt, build_sources
 from src.llm_client import generate_answer
 from src.query_rewriter import rewrite_query, generate_multi_queries
+from src.metadata_extractor import extract_paper_metadata, answer_metadata_question
 
 
 st.set_page_config(
@@ -49,6 +50,28 @@ def is_comparison_question(question):
     return any(keyword.lower() in question_lower for keyword in keywords)
 
 
+def is_metadata_question(question):
+    keywords = [
+        "author",
+        "authors",
+        "title",
+        "venue",
+        "year",
+        "conference",
+        "谁写的",
+        "作者",
+        "标题",
+        "题目",
+        "会议",
+        "年份",
+        "发表",
+        "哪一年"
+    ]
+
+    question_lower = question.lower()
+    return any(keyword.lower() in question_lower for keyword in keywords)
+
+
 def fix_result_sources(results, all_chunks):
     fixed_results = []
 
@@ -74,7 +97,6 @@ def multi_query_search(vector_store, queries, all_chunks, top_k):
 
     for query in queries:
         results = search(vector_store, query, top_k=top_k)
-
         fixed_results = fix_result_sources(results, all_chunks)
 
         for result in fixed_results:
@@ -127,6 +149,11 @@ with st.sidebar:
         value=True
     )
 
+    show_metadata = st.checkbox(
+        "Show paper metadata",
+        value=False
+    )
+
     if st.button("Clear chat"):
         clear_chat_state()
 
@@ -144,9 +171,11 @@ if uploaded_files:
     if st.session_state.get("file_signature") != file_signature:
         st.session_state["file_signature"] = file_signature
         clear_chat_state()
+        st.session_state.pop("paper_metadata", None)
 
     all_chunks = []
     temp_paths = []
+    paper_metadata = []
 
     try:
         for file_index, uploaded_file in enumerate(uploaded_files, start=1):
@@ -159,6 +188,13 @@ if uploaded_files:
 
             source_name = f"Paper {file_index}: {uploaded_file.name}"
 
+            if pages:
+                metadata = extract_paper_metadata(
+                    first_page_text=pages[0]["text"],
+                    source_name=source_name
+                )
+                paper_metadata.append(metadata)
+
             chunks = split_pages_into_chunks(
                 pages,
                 chunk_size=chunk_size,
@@ -168,12 +204,20 @@ if uploaded_files:
 
             all_chunks.extend(chunks)
 
+        st.session_state["paper_metadata"] = paper_metadata
+
         embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         vector_store = build_vector_store(all_chunks, embedding_model)
 
         st.success(
             f"Loaded {len(uploaded_files)} PDF(s) and created {len(all_chunks)} chunks."
         )
+
+        if show_metadata:
+            st.subheader("Paper Metadata")
+            for item in st.session_state["paper_metadata"]:
+                with st.expander(item["source"]):
+                    st.write(item["metadata_text"])
 
         if "messages" not in st.session_state:
             st.session_state["messages"] = []
@@ -194,6 +238,7 @@ if uploaded_files:
                 st.write(user_question)
 
             comparison_mode = is_comparison_question(user_question)
+            metadata_mode = is_metadata_question(user_question)
 
             if comparison_mode and len(uploaded_files) < 2:
                 answer = (
@@ -205,6 +250,23 @@ if uploaded_files:
                     "role": "assistant",
                     "content": answer
                 })
+
+                with st.chat_message("assistant"):
+                    st.write(answer)
+
+            elif metadata_mode:
+                answer = answer_metadata_question(
+                    question=user_question,
+                    paper_metadata=st.session_state["paper_metadata"]
+                )
+
+                st.session_state["messages"].append({
+                    "role": "assistant",
+                    "content": answer
+                })
+
+                st.session_state.pop("last_sources", None)
+                st.session_state.pop("last_results", None)
 
                 with st.chat_message("assistant"):
                     st.write(answer)
@@ -342,4 +404,5 @@ Answer the current question using only the retrieved paper excerpts.
 
 else:
     clear_chat_state()
+    st.session_state.pop("paper_metadata", None)
     st.info("Please upload one or more PDF files to start.")
