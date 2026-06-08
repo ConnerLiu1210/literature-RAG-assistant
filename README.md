@@ -15,7 +15,7 @@ A Retrieval-Augmented Generation (RAG) application that allows users to upload o
 - 🔄 Query rewriting for follow-up conversations
 - 💬 Interactive chat interface built with Streamlit
 
-
+---
 
 ## ⚙️ Tech Stack
 
@@ -41,7 +41,7 @@ A Retrieval-Augmented Generation (RAG) application that allows users to upload o
 - PyPDFLoader
 - Custom Text Chunking Pipeline
 
-
+---
 
 ## ✨ Core Pipeline
 
