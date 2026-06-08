@@ -1,10 +1,9 @@
-def split_pages_into_chunks(pages, chunk_size=250, chunk_overlap=50):
-    """
-    Split PDF pages into word-based chunks.
-
-    pages: [{"page": page_number, "text": text}, ...]
-    return: [{"page": page_number, "chunk": chunk_text}, ...]
-    """
+def split_pages_into_chunks(
+    pages,
+    chunk_size=250,
+    chunk_overlap=50,
+    source_name="Unknown"
+):
     chunks = []
 
     for page in pages:
@@ -21,6 +20,7 @@ def split_pages_into_chunks(pages, chunk_size=250, chunk_overlap=50):
 
             if chunk_text:
                 chunks.append({
+                    "source": source_name,
                     "page": page_number,
                     "chunk": chunk_text
                 })
@@ -28,7 +28,3 @@ def split_pages_into_chunks(pages, chunk_size=250, chunk_overlap=50):
             start += chunk_size - chunk_overlap
 
     return chunks
-
-
-# Alias for Streamlit app import
-split_pages = split_pages_into_chunks
