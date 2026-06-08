@@ -15,36 +15,7 @@ A Retrieval-Augmented Generation (RAG) application that allows users to upload o
 - 🔄 Query rewriting for follow-up conversations
 - 💬 Interactive chat interface built with Streamlit
 
----
 
-## 🏗 System Architecture
-
-PDF Upload
-     │
-     ▼
-PDF Parsing
-     │
-     ▼
-Text Chunking
-     │
-     ▼
-Embedding Generation
-     │
-     ▼
-Vector Store
-     │
-     ▼
-Semantic Retrieval
-     │
-     ▼
-Prompt Construction
-     │
-     ▼
-Claude API
-     │
-     ▼
-Grounded Answer + Citations
----
 
 ## ⚙️ Tech Stack
 
@@ -70,28 +41,7 @@ Grounded Answer + Citations
 - PyPDFLoader
 - Custom Text Chunking Pipeline
 
----
 
-## 📂 Project Structure
-
-literature-rag-assistant/
-│
-├── data/
-├── src/
-│   ├── pdf_loader.py
-│   ├── text_splitter.py
-│   ├── vector_store.py
-│   ├── prompt_builder.py
-│   ├── llm_client.py
-│   ├── query_rewriter.py
-│   ├── metadata_extractor.py
-│   └── rag_chain.py
-│
-├── streamlit_app.py
-├── app.py
-├── requirements.txt
-└── README.md
----
 
 ## ✨ Core Pipeline
 
